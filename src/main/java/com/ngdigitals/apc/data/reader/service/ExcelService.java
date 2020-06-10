@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
-import org.apache.poi.xssf.usermodel.XSSFPicture;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.springframework.stereotype.Service;
@@ -20,15 +19,14 @@ import com.ngdigitals.apc.data.reader.model.Voter;
 @Service
 @Slf4j
 public class ExcelService {
-    private List<Voter> voters = new ArrayList<>();
     private static String[] columns = {"VIN", "LAST NAME", "OTHER NAMES", "OCCUPATION", "GENDER", "AGE",
             "STATE", "LGA", "REGISTRATION AREA", "POLLING UNIT", "PICTURE"};
 
-    public void writeExcel(List<Voter> voters, List<File> pictures) throws IOException {
+    public void writeExcel(List<Voter> voters, List<File> pictures, String fileName) throws IOException {
 
         Workbook workbook = new XSSFWorkbook();
 
-        CreationHelper createHelper = workbook.getCreationHelper();
+//        CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Voters");
 
         Font headerFont = workbook.createFont();
@@ -49,6 +47,7 @@ public class ExcelService {
         int rowNum = 1;
         int index = 0;
         for (Voter voter : voters) {
+            System.out.println("Processing... " + voter);
             Row row = sheet.createRow(rowNum++);
             Font bodyFont = workbook.createFont();
             bodyFont.setFontHeightInPoints((short) 15);
@@ -99,7 +98,9 @@ public class ExcelService {
 
             //InputStream image = new FileInputStream("D:\\PB_PROJECT\\NFC School Card\\NFCREST\\web\\photo_student\\4566.png");
             //image.close();
-            byte[] bytes = Files.readAllBytes(pictures.get(index).toPath());//IOUtils.toByteArray(image);
+            File picture = pictures.get(index);
+            byte[] bytes = Files.readAllBytes(picture.toPath());//IOUtils.toByteArray(image);
+            picture.delete();
             int pictureID = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
 
             XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
@@ -116,7 +117,7 @@ public class ExcelService {
         for (int i = 0; i < columns.length; i++)
             sheet.autoSizeColumn(i);
 
-        FileOutputStream fileOut = new FileOutputStream("import/Voters.xlsx");
+        FileOutputStream fileOut = new FileOutputStream("import/" + fileName + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();

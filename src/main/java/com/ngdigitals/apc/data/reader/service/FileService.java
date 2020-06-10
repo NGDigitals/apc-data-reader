@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
-import com.ngdigitals.apc.data.reader.model.Voter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.pdfbox.cos.COSName;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ngdigitals.apc.data.reader.model.Voter;
 import com.ngdigitals.apc.data.reader.exception.FileImportException;
 
 @Service
@@ -40,7 +40,7 @@ public class FileService {
                 document.getClass();
                 if (!document.isEncrypted()) {
                     List<Voter> voters = readText(document);
-                    excelService.writeExcel(voters, pictures);
+                    excelService.writeExcel(voters, pictures, file.getOriginalFilename());
                     document.close();
                     long end = System.currentTimeMillis();
                     log.info("*** Import done in {} ms *** \n", (end - start));
@@ -88,7 +88,7 @@ public class FileService {
                     voter.setRegArea(regArea);
                     voter.setPollingUnit(pollingUnit);
                     voter.setPicture(pageCount + "-" + count);
-                    System.out.println(index + ": " + voter);
+                    System.out.println("Reading... " + voter);
                     voters.add(voter);
                     count++;
                     if((index += 6) >= lines.length)
@@ -119,7 +119,6 @@ public class FileService {
                     index++;
                 }
             }
-            System.out.println("Total " + index + " images read");
         }
         return pictures;
     }
