@@ -9,7 +9,7 @@ public class Voter {
     String otherNames;
     String occupation;
     String gender;
-    Integer age;
+    String age;
     String state;
     String lga;
     String regArea;

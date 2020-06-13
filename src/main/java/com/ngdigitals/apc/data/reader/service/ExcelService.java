@@ -2,7 +2,6 @@ package com.ngdigitals.apc.data.reader.service;
 
 import java.io.File;
 import java.util.List;
-import java.util.ArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.io.FileOutputStream;
@@ -22,7 +21,7 @@ public class ExcelService {
     private static String[] columns = {"VIN", "LAST NAME", "OTHER NAMES", "OCCUPATION", "GENDER", "AGE",
             "STATE", "LGA", "REGISTRATION AREA", "POLLING UNIT", "PICTURE"};
 
-    public void writeExcel(List<Voter> voters, List<File> pictures, String fileName) throws IOException {
+    public void writeExcel(List<Voter> voters, List<File> pictures, String filePath, String fileName) throws IOException {
 
         Workbook workbook = new XSSFWorkbook();
 
@@ -55,6 +54,7 @@ public class ExcelService {
             // Create a CellStyle with the font
             CellStyle bodyCellStyle = workbook.createCellStyle();
             bodyCellStyle.setFont(bodyFont);
+            bodyCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
             row.setHeight((short) 2000);
             Cell cell = row.createCell(0);
             cell.setCellStyle(bodyCellStyle);
@@ -117,7 +117,13 @@ public class ExcelService {
         for (int i = 0; i < columns.length; i++)
             sheet.autoSizeColumn(i);
 
-        FileOutputStream fileOut = new FileOutputStream("import/" + fileName + ".xlsx");
+        fileName = fileName != null && fileName.lastIndexOf(".") > 0 ?
+                fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+        FileOutputStream fileOut;
+        if(filePath == null)
+             fileOut = new FileOutputStream("import/" + fileName + ".xlsx");
+        else
+            fileOut = new FileOutputStream(filePath + "/" + fileName + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();
